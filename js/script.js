@@ -3,17 +3,15 @@
 */
 
 $(function() {
-  function render(bug) {
-    var meta = parse(bug.summary);
-    if (meta.length === 0) {
-      return;
-    }
-    var locale = meta[0];
 
-    $('table').append(
-      '<tr><td>' + 
-      '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug.id + '">1</a>' + 
-      '</td></tr>');
+  var locales = {};
+
+  function render() {
+  	console.log(locales);
+      $('table').append(
+        '<tr class="' + meta[0] + '"><td>' + 
+        '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug.id + '">1</a>' + 
+        '</td></tr>');
   }
 
   /* Parses locales and categories from bug summary:
@@ -23,11 +21,29 @@ $(function() {
   	var meta = [];
     $(summary.split("[")).each(function() {
       var temp = this.split("]");
-      if(temp.length === 2) {
+      if (temp.length === 2) {
         meta.push(temp[0]);
       }
     });
     return meta;
+  }
+
+  function add(bug) {
+    var meta = parse(bug.summary); // meta[0] is locale
+    if (meta.length === 0) {
+      return;
+    }
+    if (!locales[meta[0]]) {
+      locales[meta[0]] = [{
+      	id: bug.id,
+      	categories: meta
+      }];
+    } else {
+      locales[meta[0]].push({
+      	id: bug.id,
+      	categories: meta
+      });
+    }
   }
   
   $.ajax({
@@ -54,7 +70,7 @@ $(function() {
         },
         {
           id: 333,
-          summary: "[de][thunderbird][aurora][beta] Bug summary with 4 categories"
+          summary: "[sl][thunderbird][aurora][beta] Bug summary with 4 categories"
         },
         {
           id: 444,
@@ -63,8 +79,10 @@ $(function() {
   	  ];
 
       $(data.bugs).each(function() {
-        render(this);
+        add(this);
       });
+
+      render();
     }
   });
 });

@@ -7,11 +7,16 @@ $(function() {
   var locales = {};
 
   function render() {
-  	console.log(locales);
+  	for (var locale in locales) {
+  	  var ids = [];
+  	  $(locales[locale]).each(function() {
+        ids.push(this.id);
+  	  });
       $('table').append(
-        '<tr class="' + meta[0] + '"><td>' + 
-        '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug.id + '">1</a>' + 
+        '<tr class="' + locale + '"><td>' + 
+        '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=' + ids.join(', ') + '">' + locale + '</a>' + 
         '</td></tr>');
+    }
   }
 
   /* Parses locales and categories from bug summary:
@@ -29,20 +34,21 @@ $(function() {
   }
 
   function add(bug) {
-    var meta = parse(bug.summary); // meta[0] is locale
+    var meta = parse(bug.summary);
     if (meta.length === 0) {
-      return;
+      return; // Ignore bugs without parameters
     }
-    if (!locales[meta[0]]) {
-      locales[meta[0]] = [{
-      	id: bug.id,
-      	categories: meta
-      }];
+
+    var o = {
+          id: bug.id,
+          categories: meta
+        },
+        locale = meta[0];
+
+    if (!locales[locale]) {
+      locales[locale] = [o];
     } else {
-      locales[meta[0]].push({
-      	id: bug.id,
-      	categories: meta
-      });
+      locales[locale].push(o);
     }
   }
   

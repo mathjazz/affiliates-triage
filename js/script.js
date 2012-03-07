@@ -36,7 +36,7 @@ $(function() {
   function add(bug) {
     var meta = parse(bug.summary);
     if (meta.length === 0) {
-      return; // Ignore bugs without parameters
+      meta = ["Other bugs"];
     }
 
     var o = {

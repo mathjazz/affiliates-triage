@@ -1,4 +1,5 @@
-/* Author: Matjaž Horvat
+/* Authors: Matjaž Horvat
+            Milos Dinic
 
 */
 
@@ -53,21 +54,23 @@ $(function() {
   function add(bug) {
     var meta = parse(bug.summary);
     if (meta.categories.length === 0) {
-      meta = ["other"];
+      meta.categories.push("other");
     }
 
-    var bugObject = {
-          id: bug.id,
-          categories: meta.categories,
-          summary: meta.summary,
-        },
-        locale = meta.locale;
-
-    if (!locales[locale]) {
-      locales[locale] = [bugObject.locale];
+    if (!locales[meta.locale]) {
+      locales[meta.locale] = [meta.locale];
     } else {
-      locales[locale].push(bugObject.locale);
+      locales[meta.locale].push(meta.locale);
     }
+
+    if (!locales[meta.locale][bug.id]) {
+      locales[meta.locale][bug.id] = bug.id;
+    } else {
+      locales[meta.locale][bug.id].push(bug.id);
+    }
+
+    locales[meta.locale][bug.id].summary = meta.summary;
+    locales[meta.locale][bug.id].categories = meta.categories;
   }
   
   $.ajax({ 

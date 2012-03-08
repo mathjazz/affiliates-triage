@@ -60,34 +60,9 @@ $(function() {
       component: 'affiliates.mozilla.org banners'
     }, 
   	success: function(data) {
-      /* Test data */
-  	  data.bugs = [
-        {
-          id: 685443,
-          summary: "[sq] Affiliates program: banners localization and layout"
-        },
-        {
-          id: 111,
-          summary: "[sl][aurora] Bug summary with 2 categories"
-        },
-        {
-          id: 222,
-          summary: "[he][beta][mobile] Bug summary with 3 categories"
-        },
-        {
-          id: 333,
-          summary: "[sl][thunderbird][aurora][beta] Bug summary with 4 categories"
-        },
-        {
-          id: 444,
-          summary: "Bug summary with 0 categories -> IGNORE"
-        }
-  	  ];
-
       $(data.bugs).each(function() {
         add(this);
       });
-
       render();
     }
   });

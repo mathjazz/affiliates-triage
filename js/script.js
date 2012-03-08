@@ -1,28 +1,27 @@
-/* Authors: Matjaž Horvat
-            Milos Dinic
+/* Author: Matjaž Horvat
 
 */
 
+var bugs = {};
+
 $(function() {
 
-  var locales = {};
-
   function render() {
-    for (var locale in locales) {
+    for (var locale in bugs) {
       var ids = [];
-      $(locales[locale]).each(function() {
+      $(bugs[locale]).each(function() {
         ids.push(this.id);
       });
       $('table').append(
-        '<tr class="' + locale + '"><td>' + 
-        '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=' + ids.join(', ') + '">' + locale + '</a>' + 
+        '<tr class="' + locale + '"><td>' +
+        '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=' + ids.join(', ') + '">' + locale + '</a>' +
         '</td></tr>');
     }
   }
 
   /* Parses locales and categories from bug summary:
-   * "[locale code][and][banner][categories] And some summary text left"
-   */
+* "[locale code][and][banner][categories] And some summary text left"
+*/
 
   function parse(summary) {
     var meta = {};
@@ -33,7 +32,7 @@ $(function() {
     $(parameters.split("[")).each(function() {
       var tempParams = this.split("]");
       for (var i = 0; i < tempParams.length; i++) {
-        if (tempParams[i] == "") {        
+        if (tempParams[i] == "") {
           tempParams.splice(i, 1);
           i--;
         }
@@ -45,46 +44,44 @@ $(function() {
     meta.locale = params[0];
     meta.categories = params.slice(1);
     /* testing
-    console.log("params:" + params);
-    console.log("locale: " + meta.locale + "; categories: " + meta.categories + "; summary: " + meta.summary);
-    */
+console.log("params:" + params);
+console.log("locale: " + meta.locale + "; categories: " + meta.categories + "; summary: " + meta.summary);
+*/
     return meta;
   }
 
   function add(bug) {
     var meta = parse(bug.summary);
     if (meta.categories.length === 0) {
-      meta.categories.push("other");
+      meta = ["other"];
     }
 
-    if (!locales[meta.locale]) {
-      locales[meta.locale] = [meta.locale];
+    var tempObject = {
+      categories: meta.categories,
+      summary: meta.summary
+    },
+    bugObject = {};
+    bugObject[bug.id] = tempObject;
+
+    if (!bugs[meta.locale]) {
+      bugs[meta.locale] = bugObject;
     } else {
-      locales[meta.locale].push(meta.locale);
+      bugs[meta.locale][bug.id] = tempObject;
     }
-
-    if (!locales[meta.locale][bug.id]) {
-      locales[meta.locale][bug.id] = bug.id;
-    } else {
-      locales[meta.locale][bug.id].push(bug.id);
-    }
-
-    locales[meta.locale][bug.id].summary = meta.summary;
-    locales[meta.locale][bug.id].categories = meta.categories;
   }
   
-  $.ajax({ 
+  $.ajax({
 
-    /*  Define a URL for API
-        Response contains the bug with all the properties
-    */
+    /* Define a URL for API
+Response contains the bug with all the properties
+*/
     
-    url: 'https://api-dev.bugzilla.mozilla.org/0.9/bug', 
+    url: 'https://api-dev.bugzilla.mozilla.org/0.9/bug',
     dataType: 'json',
     data: {
       product: 'Websites',
       component: 'affiliates.mozilla.org banners'
-    }, 
+    },
     success: function(data) {
       /* if we get successful fetch call add() for each bug in response */
       $(data.bugs).each(function() {
@@ -94,5 +91,3 @@ $(function() {
     }
   });
 });
-
-
